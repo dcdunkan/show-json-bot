@@ -4,7 +4,7 @@ require("dotenv").config();
 // Importing Bot constructor from "grammy" framework. See grammy.dev for more.
 const { Bot } = require("grammy"); // npmjs.com/package/grammy
 // New bot with bot token. See telegram.me/botfather for an bot token.
-module.exports = bot = new Bot(process.env.BOT_TOKEN);
+const bot = new Bot(process.env.BOT_TOKEN);
 
 // middleware to manage any incoming message updates and return starter data structure.
 bot.use(async (ctx, next) => {
@@ -190,3 +190,5 @@ bot.command(["help", "about"], (ctx) => {
 
 // Getting the bot up and runnning.
 bot.start();
+
+module.exports = { bot };

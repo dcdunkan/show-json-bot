@@ -1,15 +1,39 @@
-// Configuration. See .env.example to get some example values.
-require("dotenv").config();
-
+import env from "./env";
+import db from "./db";
 // Importing Bot constructor from "grammy" framework. See grammy.dev for more.
-const { Bot } = require("grammy"); // npmjs.com/package/grammy
+import { Bot } from "grammy"; // npmjs.com/package/grammy
 // New bot with bot token. See telegram.me/botfather for an bot token.
-const bot = new Bot(process.env.BOT_TOKEN);
+const bot = new Bot(env.BOT_TOKEN);
+
+// Launch log.
+if (env.CHANNEL_LOG) {
+  bot.api.sendMessage(
+    env.CHANNEL_ID,
+    `<b><i>{ <a href="t.me/jsoonbot">JSON Bot</a> }</i> started.</b>\n
+State changed from down to up. (<a href="dashboard.heroku.com/apps/json-show-botx/logs">Logs</a>)
+#show_json_bot_started #show_json_bot @jsoonbot.`,
+    {
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    }
+  );
+}
 
 // middleware to manage any incoming message updates and return starter data structure.
 bot.use(async (ctx, next) => {
   // This bot is only configured to work in private chats. You might be able to change it, but I can't assure you it will work.
   if (ctx.chat.type !== "private") return;
+  
+  let exists = await db.existing(ctx.from.id)
+  console.log({ exists });
+  if (!exists) {
+    db.writeUser(ctx.from.id, ctx.from.username || "x");
+    if (env.CHANNEL_LOG) {
+      const users = db.getUsersCount();
+      bot.api.editMessageText(env.CHANNEL_ID, env.USERS_MSG_ID, `${users}`);
+    }
+  };
+
   // CallbackQueries is not being managed here.
   if (ctx.callbackQuery) return next();
   // If there is no actual message should return. And also by using "editedMessage", gets ability to manage edited messages too.
@@ -69,6 +93,14 @@ bot.use(async (ctx, next) => {
     reply_markup: {
       inline_keyboard: keyboard,
     },
+  }).then(() => {
+    db.incrementTotalJsonShowed(ctx.from.id);
+    if (env.CHANNEL_LOG) {
+      const json_showed = db.getJsonShowedCount();
+      bot.api.editMessageText(env.CHANNEL_ID, env.SHOWED_JSON_MSG_ID, `${json_showed}`);
+    }
+  }).catch((error) => {
+    console.log(error)
   });
   next();
 });
@@ -191,4 +223,4 @@ bot.command(["help", "about"], (ctx) => {
 // Getting the bot up and runnning.
 bot.start();
 
-module.exports = { bot };
+export default bot;

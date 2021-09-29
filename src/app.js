@@ -1,15 +1,25 @@
-const express = require("express");
-const { webhookCallback } = require("grammy");
-const { bot } = require("./bot");
+import express, { json } from "express";
+import { webhookCallback } from "grammy";
+import bot from "./bot";
+import env from "./env";
 
-const domain = String(process.env.DOMAIN);
-const secretPath = String(process.env.BOT_TOKEN);
+const domain = env.DOMAIN;
+const secretPath = env.BOT_TOKEN;
 const app = express();
 
-app.use(express.json());
+app.use(json());
 app.use(`/${secretPath}`, webhookCallback(bot, "express"));
 
-app.listen(Number(process.env.PORT), async () => {
+app.listen(env.PORT, async () => {
   // Make sure it is `https` not `http`!
-  await bot.api.setWebhook(`https://${domain}/${secretPath}`);
+  await bot.api
+    .setWebhook(`https://${domain}/${secretPath}`)
+    .then((result) => {
+      console.log(
+        `Bot API Webhook has been set to https://${domain}/${secretPath}`
+      );
+    })
+    .catch((error) => {
+      console.log("Bot API Webhook setting failed:", error);
+    });
 });

@@ -36,7 +36,10 @@ class Firebase {
 
   getUser = (user_id) => this.get(`users/${user_id}`);
   getUsers = () => this.get("users");
-  getUsersCount = () => Object.keys(this.getUsers()).length;
+  getUsersCount = async () => {
+    const users = await this.getUsers();
+    return Object.keys(users).length - 1;
+  }
   getJsonShowedCount = () => this.get("data/json_showed")
   getJsonShowedCountForUser = (user_id) => this.get(`users/${user_id}/json_showed`);
   getAll = () => this.get("/");
@@ -44,7 +47,7 @@ class Firebase {
   existing = async (user_id) => {
     const users = await this.get("users");
     if (users === null) return null;
-    if (users & (user_id in users)) return true;
+    if (users && (user_id in users)) return true;
   };
 
   writeUser = (user_id, username) => {

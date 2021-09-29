@@ -2,21 +2,14 @@ import env from "./env";
 import db from "./db";
 // Importing Bot constructor from "grammy" framework. See grammy.dev for more.
 import { Bot } from "grammy"; // npmjs.com/package/grammy
+import { Logger } from "./utils/channel-logger";
 // New bot with bot token. See telegram.me/botfather for an bot token.
 const bot = new Bot(env.BOT_TOKEN);
+const clog = new Logger();
 
 // Launch log.
 if (env.CHANNEL_LOG) {
-  bot.api.sendMessage(
-    env.CHANNEL_ID,
-    `<b><i>{ <a href="t.me/jsoonbot">JSON Bot</a> }</i> started.</b>\n
-State changed from down to up. (<a href="dashboard.heroku.com/apps/json-show-botx/logs">Logs</a>)
-#show_json_bot_started #show_json_bot @jsoonbot.`,
-    {
-      parse_mode: "HTML",
-      disable_web_page_preview: true,
-    }
-  );
+  clog.log("start");
 }
 
 // middleware to manage any incoming message updates and return starter data structure.
@@ -24,15 +17,14 @@ bot.use(async (ctx, next) => {
   // This bot is only configured to work in private chats. You might be able to change it, but I can't assure you it will work.
   if (ctx.chat.type !== "private") return;
 
-  let exists = await db.existing(ctx.from.id);
-  console.log({ exists });
-  if (!exists) {
+  db.existing(ctx.from.id).then(async (exists) => {
+    if (exists) return;
     db.writeUser(ctx.from.id, ctx.from.username || "x");
     if (env.CHANNEL_LOG) {
-      const users = db.getUsersCount();
-      bot.api.editMessageText(env.CHANNEL_ID, env.USERS_MSG_ID, `${users}`);
+      const users = await db.getUsersCount();
+      clog.updateUserCount(users);
     }
-  }
+  });
 
   // CallbackQueries is not being managed here.
   if (ctx.callbackQuery) return next();
@@ -95,16 +87,13 @@ bot.use(async (ctx, next) => {
         inline_keyboard: keyboard,
       },
     })
-    .then(() => {
-      db.incrementTotalJsonShowed(ctx.from.id);
-      if (env.CHANNEL_LOG) {
-        const json_showed = db.getJsonShowedCount();
-        bot.api.editMessageText(
-          env.CHANNEL_ID,
-          env.SHOWED_JSON_MSG_ID,
-          `${json_showed}`
-        );
-      }
+    .then(async () => {
+      db.incrementTotalJsonShowed(ctx.from.id).then(() => {
+        if (env.CHANNEL_LOG) {
+          const json_showed = await db.getJsonShowedCount();
+          clog.updateShowedCount(json_showed);
+        }
+      })
     })
     .catch((error) => {
       console.log(error);
@@ -115,6 +104,22 @@ bot.use(async (ctx, next) => {
 // Catches errors and send logs to channel.
 bot.catch((error) => {
   console.error(`Error occurred. Details:\n${error}`);
+  clog.log("error", `${error.name}\n${error.message}\n${error.stack}\n${error.error}`);
+});
+
+process.on("uncaughtException", (error) => {
+  clog.log("error", `${error.name}\n${error.message}\n${error.stack}\n${error.error}`);
+});
+process.on("unhandledRejection", (error) => {
+  clog.log("error", `${error.name}\n${error.message}\n${error.stack}\n${error.error}`);
+});
+process.on("SIGINT", async () => {
+  clog.log("stop", "SIGINT recieved.");
+  await bot.stop();
+});
+process.on("SIGTERM", async () => {
+  clog.log("stop", "SIGTERM recieved.");
+  await bot.stop();
 });
 
 // Navigation thorugh the object structure.

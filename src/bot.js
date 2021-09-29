@@ -23,8 +23,8 @@ State changed from down to up. (<a href="dashboard.heroku.com/apps/json-show-bot
 bot.use(async (ctx, next) => {
   // This bot is only configured to work in private chats. You might be able to change it, but I can't assure you it will work.
   if (ctx.chat.type !== "private") return;
-  
-  let exists = await db.existing(ctx.from.id)
+
+  let exists = await db.existing(ctx.from.id);
   console.log({ exists });
   if (!exists) {
     db.writeUser(ctx.from.id, ctx.from.username || "x");
@@ -32,7 +32,7 @@ bot.use(async (ctx, next) => {
       const users = db.getUsersCount();
       bot.api.editMessageText(env.CHANNEL_ID, env.USERS_MSG_ID, `${users}`);
     }
-  };
+  }
 
   // CallbackQueries is not being managed here.
   if (ctx.callbackQuery) return next();
@@ -83,25 +83,32 @@ bot.use(async (ctx, next) => {
       ]);
   });
 
-  await ctx.reply(`update_id: <code>${ctx.update.update_id}</code>,\nupdate`, {
-    parse_mode: "HTML",
-    reply_to_message_id:
-      ctx.message !== undefined
-        ? ctx.message.message_id
-        : ctx.editedMessage.message_id,
-    disable_web_page_preview: true,
-    reply_markup: {
-      inline_keyboard: keyboard,
-    },
-  }).then(() => {
-    db.incrementTotalJsonShowed(ctx.from.id);
-    if (env.CHANNEL_LOG) {
-      const json_showed = db.getJsonShowedCount();
-      bot.api.editMessageText(env.CHANNEL_ID, env.SHOWED_JSON_MSG_ID, `${json_showed}`);
-    }
-  }).catch((error) => {
-    console.log(error)
-  });
+  await ctx
+    .reply(`update_id: <code>${ctx.update.update_id}</code>,\nupdate`, {
+      parse_mode: "HTML",
+      reply_to_message_id:
+        ctx.message !== undefined
+          ? ctx.message.message_id
+          : ctx.editedMessage.message_id,
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: keyboard,
+      },
+    })
+    .then(() => {
+      db.incrementTotalJsonShowed(ctx.from.id);
+      if (env.CHANNEL_LOG) {
+        const json_showed = db.getJsonShowedCount();
+        bot.api.editMessageText(
+          env.CHANNEL_ID,
+          env.SHOWED_JSON_MSG_ID,
+          `${json_showed}`
+        );
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
   next();
 });
 

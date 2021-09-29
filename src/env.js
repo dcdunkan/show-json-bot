@@ -1,5 +1,6 @@
 import { cleanEnv, str, bool, url, num, port } from "envalid";
 import { config } from "dotenv";
+
 config();
 
 export default cleanEnv(process.env, {

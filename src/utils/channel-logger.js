@@ -1,10 +1,8 @@
-import bot from "../bot";
-import db from "../db";
 import env from "../env";
 
-export class Logger {
-  constructor () {
-    this.log = env.CHANNEL_LOG;
+class Logger {
+  constructor (bot) {
+    this.bot = bot;
     this.c_id = env.CHANNEL_ID;
     this.users_msg = env.USERS_MSG_ID;
     this.showed_msg = env.SHOWED_JSON_MSG_ID;
@@ -15,11 +13,11 @@ export class Logger {
   }
 
   print = (content) => {
-    bot.api.sendMessage(this.c_id, content, this.options)
+    this.bot.api.sendMessage(this.c_id, content, this.options)
   };
 
   edit = (message_id, content) => {
-    bot.api.editMessageText(this.c_id, message_id, content, this.options)
+    this.bot.api.editMessageText(this.c_id, message_id, content, this.options)
   };
 
   log = (content, extra) => {
@@ -43,3 +41,5 @@ export class Logger {
     this.edit(this.showed_msg, `${showedCount}`);
   };
 }
+
+export default Logger;

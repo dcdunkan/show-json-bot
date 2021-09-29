@@ -2,10 +2,10 @@ import env from "./env";
 import db from "./db";
 // Importing Bot constructor from "grammy" framework. See grammy.dev for more.
 import { Bot } from "grammy"; // npmjs.com/package/grammy
-import { Logger } from "./utils/channel-logger";
+import Logger from "./utils/channel-logger";
 // New bot with bot token. See telegram.me/botfather for an bot token.
 const bot = new Bot(env.BOT_TOKEN);
-const clog = new Logger();
+const clog = new Logger(bot);
 
 // Launch log.
 if (env.CHANNEL_LOG) {
@@ -88,12 +88,12 @@ bot.use(async (ctx, next) => {
       },
     })
     .then(async () => {
-      db.incrementTotalJsonShowed(ctx.from.id).then(() => {
+      db.incrementTotalJsonShowed(ctx.from.id).then(async () => {
         if (env.CHANNEL_LOG) {
           const json_showed = await db.getJsonShowedCount();
-          clog.updateShowedCount(json_showed);
+          clog.updateShowedCount(json_showed + 1);
         }
-      })
+      });
     })
     .catch((error) => {
       console.log(error);
@@ -104,14 +104,23 @@ bot.use(async (ctx, next) => {
 // Catches errors and send logs to channel.
 bot.catch((error) => {
   console.error(`Error occurred. Details:\n${error}`);
-  clog.log("error", `${error.name}\n${error.message}\n${error.stack}\n${error.error}`);
+  clog.log(
+    "error",
+    `${error.name}\n${error.message}\n${error.stack}\n${error.error}`
+  );
 });
 
 process.on("uncaughtException", (error) => {
-  clog.log("error", `${error.name}\n${error.message}\n${error.stack}\n${error.error}`);
+  clog.log(
+    "error",
+    `${error.name}\n${error.message}\n${error.stack}\n${error.error}`
+  );
 });
 process.on("unhandledRejection", (error) => {
-  clog.log("error", `${error.name}\n${error.message}\n${error.stack}\n${error.error}`);
+  clog.log(
+    "error",
+    `${error.name}\n${error.message}\n${error.stack}\n${error.error}`
+  );
 });
 process.on("SIGINT", async () => {
   clog.log("stop", "SIGINT recieved.");

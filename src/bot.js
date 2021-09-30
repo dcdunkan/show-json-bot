@@ -122,14 +122,6 @@ process.on("unhandledRejection", (error) => {
     `${error.name}\n${error.message}\n${error.stack}\n${error.error}`
   );
 });
-process.on("SIGINT", async () => {
-  clog.log("stop", "SIGINT recieved.");
-  await bot.stop();
-});
-process.on("SIGTERM", async () => {
-  clog.log("stop", "SIGTERM recieved.");
-  await bot.stop();
-});
 
 // Navigation thorugh the object structure.
 bot.callbackQuery(/go-(.+)-(.+)/, async (ctx) => {

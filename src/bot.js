@@ -233,7 +233,4 @@ bot.command(["help", "about"], (ctx) => {
   );
 });
 
-// Getting the bot up and runnning.
-bot.start();
-
 export default bot;

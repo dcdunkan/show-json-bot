@@ -1,15 +1,15 @@
 {
-  "name": "tg-json-bot",
+  "name": "show-json-bot",
   "version": "1.0.0",
   "description": "A simple bot to show JSON raw data of telegram messages.",
   "main": "src/app.js",
   "type": "module",
   "scripts": {
-    "start": "node ./src/bot.js",
-    "devStart": "nodemon ./src/bot.js"
+    "start": "node ./src/app.js"
   },
   "keywords": [
     "dcbots",
+    "bot",
     "json",
     "telegram",
     "grammy"

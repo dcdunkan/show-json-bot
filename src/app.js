@@ -10,11 +10,10 @@ const app = express();
 app.use(json());
 app.use(`/${secretPath}`, webhookCallback(bot, "express"));
 
-app.listen(env.PORT, async () => {
-  // Make sure it is `https` not `http`!
+app.listen(process.env.PORT, async () => {
   await bot.api
     .setWebhook(`https://${domain}/${secretPath}`)
-    .then((result) => {
+    .then(() => {
       console.log(
         `Bot API Webhook has been set to https://${domain}/${secretPath}`
       );

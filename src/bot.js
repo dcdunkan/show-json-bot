@@ -1,7 +1,7 @@
 import env from "./env";
 import db from "./db";
 // Importing Bot constructor from "grammy" framework. See grammy.dev for more.
-import { Bot } from "grammy"; // npmjs.com/package/grammy
+import { Bot, GrammyError, HttpError } from "grammy"; // npmjs.com/package/grammy
 import Logger from "./utils/channel-logger";
 // New bot with bot token. See telegram.me/botfather for an bot token.
 const bot = new Bot(env.BOT_TOKEN);
@@ -101,13 +101,18 @@ bot.use(async (ctx, next) => {
   next();
 });
 
-// Catches errors and send logs to channel.
-bot.catch((error) => {
-  console.error(`Error occurred. Details:\n${error}`);
-  clog.log(
-    "error",
-    `${error.name}\n${error.message}\n${error.stack}\n${error.error}`
-  );
+bot.catch((err) => {
+  const ctx = err.ctx;
+  let error_message = `Error while handling update ${ctx.update.update_id}:\n`
+  const e = err.error;
+  if (e instanceof GrammyError) {
+    error_message += "Error in request:" + e.description;
+  } else if (e instanceof HttpError) {
+    error_message += `Could not contact Telegram: ${JSON.stringify(e)}`;
+  } else {
+    console.error("Unknown error:", e);
+  }
+  clog.log("error", error_message);
 });
 
 process.on("uncaughtException", (error) => {

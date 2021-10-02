@@ -251,11 +251,12 @@ bot.command("me", async (ctx) => {
   await ctx.api
     .getChatMember("@dcbots", ctx.from.id)
     .then(() => {
-      message += `🎈 And by the way, thank you for using the bot and subscribing to our channel. If you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at BotsArchive and <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
+      message += `🎈 And by the way, thank you for using the bot and subscribing to our channel. If you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
     })
     .catch(() => {
-      message += `🎈 And by the way, thank you for using the bot. But, 😕 hmm... Its sad that you haven't subscribed to our channel yet :)\nPlease consider Joining our channel for more bots and updates, if you can. Also, if you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at BotsArchive and <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
+      message += `🎈 And by the way, thank you for using the bot. But, 😕 hmm... Its sad that you haven't subscribed to our channel yet :)\nPlease consider Joining our channel for more bots and updates, if you can. Also, if you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
     });
+    // rating at BotsArchive and 
   ctx.reply(message, {
     parse_mode: "HTML",
     disable_web_page_preview: true,
@@ -263,12 +264,12 @@ bot.command("me", async (ctx) => {
     reply_markup: {
       inline_keyboard: [
         [{ text: "📢 Our Channel", url: "https://telegram.me/dcbots" }],
-        [
-          {
-            text: "⭐️ Rate on BotsArchive",
-            url: "https://telegram.me/dcbots",
-          },
-        ],
+        // [
+        //   {
+        //     text: "⭐️ Rate on BotsArchive",
+        //     url: "https://telegram.me/dcbots",
+        //   },
+        // ],
         [
           {
             text: "⭐️ Rate on Telegramic",

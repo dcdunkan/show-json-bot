@@ -2,6 +2,7 @@
 import admin from "firebase-admin";
 
 class Firebase {
+  db = false;
   // credential - Credentials generated from Firebase's Console > Project > Project Settings > Service Accounts.
   // databaseURL - URL of the firebase database.
   constructor(credential, databaseURL) {
@@ -11,18 +12,20 @@ class Firebase {
 
   // Initialize the connection to the database using credentials and database url.
   initialize = async () => {
-    admin.initializeApp({
-      credential: admin.credential.cert(this.credential),
-      databaseURL: this.databaseURL,
-    });
-    this.setupDb();
+    if (this.db) {
+      admin.initializeApp({
+        credential: admin.credential.cert(this.credential),
+        databaseURL: this.databaseURL,
+      });
+      this.setupDb();
+    }
   };
 
   /**
    * BASIC FUNCTIONS
    * get, set, update, and _delete functions. But, I dont think any of it is a good way to do these things.
    * Maybe, I will make it better later. (*If* I can do it in a more perfect way.)
-   * 
+   *
    * ref, parent_ref: Path to the data to be get, written, updated, or deleted;
    * data: Its the data to be written or updated;
    */

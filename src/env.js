@@ -10,7 +10,12 @@ export default cleanEnv(process.env, {
   }),
   DOMAIN: str(),
   PORT: port(),
+
   // Firebase
+  DB_ENABLE: bool({
+    desc: "Set to true if you want to logging users to Firebase and Update users in channel.",
+    default: false
+  }),
   DB_URL: url({
     desc: "Firebase Real-Time Database URL",
     example: "https://projectname-default-rtdb.firebaseio.com",
@@ -24,6 +29,7 @@ export default cleanEnv(process.env, {
     example: "----BEGIN PRIVATE KEY---...",
   }),
   CLIENT_EMAIL: str({ desc: "Client Email ID of Firebase Project." }),
+
   // Channel Log
   CHANNEL_LOG: bool({
     default: false,

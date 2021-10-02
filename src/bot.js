@@ -1,5 +1,7 @@
 import env from "./env";
 import db from "./db";
+import numberToWords from "number-to-words";
+
 // Importing Bot constructor from "grammy" framework. See grammy.dev for more.
 import { Bot, GrammyError, HttpError } from "grammy"; // npmjs.com/package/grammy
 import Logger from "./utils/channel-logger";
@@ -8,7 +10,7 @@ const bot = new Bot(env.BOT_TOKEN);
 const clog = new Logger(bot);
 
 // Launch log.
-if (env.CHANNEL_LOG) {
+if (env.CHANNEL_LOG === true) {
   clog.log("start");
 }
 
@@ -17,14 +19,16 @@ bot.use(async (ctx, next) => {
   // This bot is only configured to work in private chats. You might be able to change it, but I can't assure you it will work.
   if (ctx.chat.type !== "private") return;
 
-  db.existing(ctx.from.id).then(async (exists) => {
-    if (exists) return;
-    db.writeUser(ctx.from.id, ctx.from.username || "x");
-    if (env.CHANNEL_LOG) {
-      const users = await db.getUsersCount();
-      clog.updateUserCount(users);
-    }
-  });
+  if (db.db) {
+    db.existing(ctx.from.id).then(async (exists) => {
+      if (exists) return;
+      db.writeUser(ctx.from.id, ctx.from.username || "x");
+      if (env.CHANNEL_LOG === true) {
+        const users = await db.getUsersCount();
+        clog.updateUserCount(users);
+      }
+    });
+  }
 
   // CallbackQueries is not being managed here.
   if (ctx.callbackQuery) return next();
@@ -88,12 +92,15 @@ bot.use(async (ctx, next) => {
       },
     })
     .then(async () => {
-      db.incrementTotalJsonShowed(ctx.from.id).then(async () => {
-        if (env.CHANNEL_LOG) {
-          const json_showed = await db.getJsonShowedCount();
-          clog.updateShowedCount(json_showed + 1);
-        }
-      });
+      if (db.db) {
+        db.incrementTotalJsonShowed(ctx.from.id).then(async () => {
+          if (env.CHANNEL_LOG === true) {
+            const json_showed = await db.getJsonShowedCount();
+            // It is not getting updated accurately with just "json_showed"
+            clog.updateShowedCount(json_showed + 1);
+          }
+        });
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -103,29 +110,26 @@ bot.use(async (ctx, next) => {
 
 bot.catch((err) => {
   const ctx = err.ctx;
-  let error_message = `Error while handling update ${ctx.update.update_id}:\n`
+  let error_message = `Error while handling update ${ctx.update.update_id}:\n`;
   const e = err.error;
   if (e instanceof GrammyError) {
     error_message += "Error in request:" + e.description;
+    console.error("Error in request:", e.description);
   } else if (e instanceof HttpError) {
     error_message += `Could not contact Telegram: ${JSON.stringify(e)}`;
+    console.error("Could not contact Telegram:", e);
   } else {
     console.error("Unknown error:", e);
   }
-  clog.log("error", error_message);
+  if (env.CHANNEL_LOG === true) clog.log("error", error_message);
 });
 
 process.on("uncaughtException", (error) => {
-  clog.log(
-    "error",
-    `${error.name}\n${error.message}\n${error.stack}\n${error.error}`
-  );
-});
-process.on("unhandledRejection", (error) => {
-  clog.log(
-    "error",
-    `${error.name}\n${error.message}\n${error.stack}\n${error.error}`
-  );
+  if (env.CHANNEL_LOG === true)
+    clog.log(
+      "error",
+      `${error.name}\n${error.message}\n${error.stack}\n${error.error}`
+    );
 });
 
 // Navigation thorugh the object structure.
@@ -236,6 +240,44 @@ bot.command(["help", "about"], (ctx) => {
       disable_web_page_preview: true,
     }
   );
+});
+
+bot.command("me", async (ctx) => {
+  let json_showed = Number(await db.getJsonShowedCountForUser(ctx.from.id));
+  let message = `I have printed ${json_showed} message JSON data for you this far!\nIn words, ${numberToWords.toWords(
+    json_showed
+  )} JSON!\n\n`;
+
+  await ctx.api
+    .getChatMember("@dcbots", ctx.from.id)
+    .then(() => {
+      message += `🎈 And by the way, thank you for using the bot and subscribing to our channel. If you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at BotsArchive and <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
+    })
+    .catch(() => {
+      message += `🎈 And by the way, thank you for using the bot. But, 😕 hmm... Its sad that you haven't subscribed to our channel yet :)\nPlease consider Joining our channel for more bots and updates, if you can. Also, if you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at BotsArchive and <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
+    });
+  ctx.reply(message, {
+    parse_mode: "HTML",
+    disable_web_page_preview: true,
+    reply_to_message_id: ctx.message.message_id,
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "📢 Our Channel", url: "https://telegram.me/dcbots" }],
+        [
+          {
+            text: "⭐️ Rate on BotsArchive",
+            url: "https://telegram.me/dcbots",
+          },
+        ],
+        [
+          {
+            text: "⭐️ Rate on Telegramic",
+            url: "https://telegram.me/tlgrmcbot?start=jsoonbot-review",
+          },
+        ],
+      ],
+    },
+  });
 });
 
 export default bot;

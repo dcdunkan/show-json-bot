@@ -1,0 +1,56 @@
+{
+  "name": "Show JSON Bot",
+  "description": "A simple bot to show JSON raw data of telegram messages.",
+  "keywords": [
+    "dcbots",
+    "bot",
+    "json",
+    "telegram",
+    "grammy"
+  ],
+  "website": "https://telegram.me/dcbotz",
+  "repository": "https://github.com/dcdunkan/show-json-bot",
+  "env": {
+    "BOT_TOKEN": {
+      "description": "Your bot token, as a string. Get it from https://telegram.me/botfather"
+    },
+    "DOMAIN": {
+      "description": "MUST Set this value to <yourappname>.herokuapp.com or custom domain you are using this app. Or the bot won't work properly.",
+      "value": ".herokuapp.com"
+    },
+    "DB_ENABLE": {
+      "description": "Set to true if you want to logging users to Firebase and Update users in channel.",
+      "value": "false"
+    },
+    "DB_URL": {
+      "description": "Firebase Real-Time Database URL. Set only if DB_ENABLE is true. See docs to know how to get values: github.com/dcdunkan/show-json-bot",
+      "value": "",
+      "required": false
+    },
+    "PRIVATE_KEY": {
+      "description": "A long Private Key string of Firebase Project. Set only if DB_ENABLE is true. See docs to know how to get values: github.com/dcdunkan/show-json-bot",
+      "required": false
+    },
+    "CLIENT_EMAIL": {
+      "description": "Client Email ID of Firebase Project. Set only if DB_ENABLE is true. See docs to know how to get values: github.com/dcdunkan/show-json-bot",
+      "required": false
+    },
+    "CHANNEL_LOG": {
+      "description": "Set to true if you want start/error log to private/public channel.",
+      "value": "false"
+    },
+    "CHANNEL_ID": {
+      "description": "ID of the channel you want to log messages. And the bot must be admin with edit message permission. Only set if CHANNEL_LOG is true.",
+      "required": false
+    },
+    "USERS_MSG_ID": {
+      "description": "ID of a message in the Channel to update number of users. Only set if both DB_ENABLE and CHANNEL_LOG is true.",
+      "required": false
+    },
+    "SHOWED_JSON_MSG_ID": {
+      "description": "ID of the message which has number of total printed JSONs.  Only set if both DB_ENABLE and CHANNEL_LOG is true.",
+      "required": false
+    }
+  },
+  "stack": "heroku-20"
+}

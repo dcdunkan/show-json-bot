@@ -281,4 +281,5 @@ bot.command("me", async (ctx) => {
   });
 });
 
+bot.start();
 export default bot;

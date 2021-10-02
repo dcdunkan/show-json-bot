@@ -134,6 +134,7 @@ process.on("uncaughtException", (error) => {
 
 // Navigation thorugh the object structure.
 bot.callbackQuery(/go-(.+)-(.+)/, async (ctx) => {
+  ctx.answerCallbackQuery();
   // ctx.match[1] is created from pair0. String contains name of destination.
   const where = ctx.match[1];
   // ctx.match[2] is index of pair0 going page.
@@ -203,8 +204,8 @@ bot.callbackQuery(/go-(.+)-(.+)/, async (ctx) => {
 
 // Data can be print if they got clicked (Non-object data - both key & value)
 bot.callbackQuery(/print-(.+)-(.+)/, (ctx) => {
-  let id = ctx.match[2],
-    toPrint;
+  ctx.answerCallbackQuery();
+  let toPrint;
   ctx.callbackQuery.message.reply_markup.inline_keyboard.forEach((row) => {
     row.forEach((button) => {
       if (button.callback_data == ctx.callbackQuery.data) toPrint = button.text;

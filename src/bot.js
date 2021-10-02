@@ -243,42 +243,44 @@ bot.command(["help", "about"], (ctx) => {
 });
 
 bot.command("me", async (ctx) => {
-  let json_showed = Number(await db.getJsonShowedCountForUser(ctx.from.id));
-  let message = `I have printed ${json_showed} message JSON data for you this far!\nIn words, ${numberToWords.toWords(
-    json_showed
-  )} JSON!\n\n`;
+  if (db.db) {
+    let json_showed = Number(await db.getJsonShowedCountForUser(ctx.from.id));
+    let message = `I have printed ${json_showed} message JSON data for you this far!\nIn words, ${numberToWords.toWords(
+      json_showed
+    )} JSON!\n\n`;
 
-  await ctx.api
-    .getChatMember("@dcbots", ctx.from.id)
-    .then(() => {
-      message += `🎈 And by the way, thank you for using the bot and subscribing to our channel. If you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
-    })
-    .catch(() => {
-      message += `🎈 And by the way, thank you for using the bot. But, 😕 hmm... Its sad that you haven't subscribed to our channel yet :)\nPlease consider Joining our channel for more bots and updates, if you can. Also, if you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
-    });
-    // rating at BotsArchive and 
-  ctx.reply(message, {
-    parse_mode: "HTML",
-    disable_web_page_preview: true,
-    reply_to_message_id: ctx.message.message_id,
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "📢 Our Channel", url: "https://telegram.me/dcbots" }],
-        // [
-        //   {
-        //     text: "⭐️ Rate on BotsArchive",
-        //     url: "https://telegram.me/dcbots",
-        //   },
-        // ],
-        [
-          {
-            text: "⭐️ Rate on Telegramic",
-            url: "https://telegram.me/tlgrmcbot?start=jsoonbot-review",
-          },
+    await ctx.api
+      .getChatMember("@dcbots", ctx.from.id)
+      .then(() => {
+        message += `🎈 And by the way, thank you for using the bot and subscribing to our channel. If you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
+      })
+      .catch(() => {
+        message += `🎈 And by the way, thank you for using the bot. But, 😕 hmm... Its sad that you haven't subscribed to our channel yet :)\nPlease consider Joining our channel for more bots and updates, if you can. Also, if you haven't already, please consider giving it a 5⭐️ (as you like, I just want a review) rating at <a href="https://t.me/tlgrmcbot?start=jsoonbot-review">Telegramic</a>.`;
+      });
+    // rating at BotsArchive and
+    ctx.reply(message, {
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+      reply_to_message_id: ctx.message.message_id,
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "📢 Our Channel", url: "https://telegram.me/dcbots" }],
+          // [
+          //   {
+          //     text: "⭐️ Rate on BotsArchive",
+          //     url: "https://telegram.me/dcbots",
+          //   },
+          // ],
+          [
+            {
+              text: "⭐️ Rate on Telegramic",
+              url: "https://telegram.me/tlgrmcbot?start=jsoonbot-review",
+            },
+          ],
         ],
-      ],
-    },
-  });
+      },
+    });
+  }
 });
 
 bot.start();

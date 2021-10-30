@@ -4,7 +4,7 @@
 
 ![bla](https://user-images.githubusercontent.com/70066170/135584530-6c118536-714e-44ba-9126-a2227f6512c1.png)
 
-### _[Demo](https://telegram.me/jsoonbot) ● [Channel](https://telegram.me/dcbpts) ● [Deploy](#deploy)_
+### _[Demo](https://telegram.me/jsoonbot) ● [Channel](https://telegram.me/dcbots) ● [Deploy](#deploy)_
 
 Telegram bot that can show the JSON raw data of a sent message, appended with functioning buttons to navigate through the JSON object. This bot's working flow is inspired by [JSONShowBot](https://telegram.me/JSONShowBot) which is **not** working as of September 2021.
 

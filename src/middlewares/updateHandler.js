@@ -1,6 +1,10 @@
 import db from "../db";
 import env from "../env";
 
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 export default async (ctx, next) => {
   // This bot is only configured to work in private chats.
   if (ctx.chat.type !== "private") return;
@@ -28,18 +32,24 @@ export default async (ctx, next) => {
 
   let data = JSON.stringify(ctx.update, undefined, 2);
 
-  let msg_arr = [`\`\`\`${data}\`\`\``];
+  let msg_arr = [
+    `<pre><code class="language-json">${escapeHtml(data)}</code></pre>`,
+  ];
 
   if (msg_arr[0].length > 4096) {
     msg_arr.shift();
     for (let i = 1; i <= 2; i++) {
-      msg_arr.push(`\`\`\`${data.substr((i - 1) * 4096, i * 4096)}\`\`\``);
+      msg_arr.push(
+        `<pre><code class="language-json">${escapeHtml(
+          data.substr((i - 1) * 4096, i * 4096)
+        )}</code></pre>`
+      );
     }
   }
   // Send split messages.
   for (let i = 0; i < msg_arr.length; i++) {
     await ctx.reply(msg_arr[i], {
-      parse_mode: "Markdown",
+      parse_mode: "HTML",
       reply_to_message_id:
         ctx.message !== undefined
           ? ctx.message.message_id

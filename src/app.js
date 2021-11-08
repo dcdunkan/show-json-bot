@@ -1,9 +1,10 @@
-import express, { json } from "express";
-import { webhookCallback } from "grammy";
 import bot from "./bot";
 import env from "./env";
 
-const domain = env.DOMAIN;
+import express, { json } from "express";
+import { webhookCallback } from "grammy";
+
+const domain = process.env.DOMAIN;
 const secretPath = env.BOT_TOKEN;
 const app = express();
 
@@ -17,6 +18,13 @@ app.listen(process.env.PORT, async () => {
       console.log(
         `Bot API Webhook has been set to https://${domain}/${secretPath}`
       );
+      if (env.CHAT_LOG === true) {
+        let msg = `<a href="t.me/${bot.botInfo.username}">JSON Bot</a> started.\n#show_json_bot @${bot.botInfo.username}.`;
+        bot.api.sendMessage(process.env.CHAT_ID, msg, {
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+        });
+      }
     })
     .catch((error) => {
       console.log("Bot API Webhook setting failed:", error);

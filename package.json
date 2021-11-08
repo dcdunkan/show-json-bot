@@ -5,8 +5,9 @@
   "main": "src/app.js",
   "type": "module",
   "scripts": {
-    "start": "node ./src/app.js",
-    "dev": "nodemon --experimental-modules --es-module-specifier-resolution=node src/app.js"
+    "start": "node --experimental-modules --es-module-specifier-resolution=node src/app.js",
+    "local": "node --experimental-modules --es-module-specifier-resolution=node src/bot.js",
+    "dev": "nodemon --experimental-modules --es-module-specifier-resolution=node src/bot.js"
   },
   "keywords": [
     "dcbots",
@@ -18,11 +19,14 @@
   "author": "dcdunkan",
   "license": "ISC",
   "dependencies": {
+    "deta": "^1.0.1",
     "dotenv": "^10.0.0",
     "envalid": "^7.2.1",
     "express": "^4.17.1",
-    "firebase-admin": "^9.12.0",
     "grammy": "^1.3.3",
     "number-to-words": "^1.2.4"
+  },
+  "devDependencies": {
+    "@types/number-to-words": "^1.2.1"
   }
 }

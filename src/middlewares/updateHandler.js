@@ -37,11 +37,12 @@ export default async (ctx, next) => {
   ];
 
   if (msg_arr[0].length > 4096) {
+    let limit = Math.ceil(msg_arr[0].length/4096);
     msg_arr.shift();
-    for (let i = 1; i <= 2; i++) {
+    for (let i = 0; i < limit; i++) {
       msg_arr.push(
         `<pre><code class="language-json">${escapeHtml(
-          data.substr((i - 1) * 4096, i * 4096)
+          data.substring((i - 1) * 4096, i * 4096)
         )}</code></pre>`
       );
     }

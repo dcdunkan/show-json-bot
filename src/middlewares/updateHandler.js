@@ -9,6 +9,70 @@ export default async (ctx, next) => {
   // This bot is only configured to work in private chats.
   if (ctx.chat.type !== "private") return;
 
+  // CallbackQueries is not being managed here.
+  if (ctx.callbackQuery) return await next();
+  if (!ctx.message && !ctx.editedMessage) return;
+
+  let data = JSON.stringify(ctx.update, undefined, 2);
+
+  let escaped = escapeHtml(data);
+  let msg_arr = [
+    `<pre><code class="language-json">${escaped}</code></pre>`,
+  ];
+
+  if (escaped.length > 4096) {
+  	let limit = Math.ceil(escaped.length / 4096);
+    msg_arr.shift();
+    for (let i = 1; i <= limit; i++) {
+      msg_arr.push(
+        `<pre><code class="language-json">${escapeHtml(
+          data.substring((i - 1) * 4096, i * 4096)
+        )}</code></pre>`
+      );
+    }
+  }
+  
+  // Send split messages.
+  for (let msg of msg_arr) {
+    await ctx.reply(msg, {
+      parse_mode: "HTML",
+      reply_to_message_id:
+        ctx.message !== undefined
+          ? ctx.message.message_id
+          : ctx.editedMessage.message_id,
+      disable_web_page_preview: true,
+    });
+  }
+
+  // Inline Keyboard buttons creating using keys.
+  const keyboard = [];
+  const pairs = Object.entries(ctx.update);
+  for(let pair of pairs) {
+    // => update_id, message || edited_message
+    if (typeof pair[1] == "object")
+      keyboard.push([
+        { text: `${pair[0]}`, callback_data: `print-key-${pair[0]}` },
+        { text: `Object 📂`, callback_data: `go-${pair[0]}-1` },
+      ]);
+    else
+      keyboard.push([
+        { text: `${pair[0]}`, callback_data: `print-key-${pair[0]}` },
+        { text: `${pair[1]}`, callback_data: `print-value-${pair[0]}` },
+      ]);
+  }
+
+  await ctx.reply(`update_id: <code>${ctx.update.update_id}</code>,\nupdate`, {
+    parse_mode: "HTML",
+    reply_to_message_id:
+      ctx.message !== undefined
+        ? ctx.message.message_id
+        : ctx.editedMessage.message_id,
+    disable_web_page_preview: true,
+    reply_markup: {
+      inline_keyboard: keyboard,
+    },
+  });
+
   if (db.up) {
     const { status } = await db.writeUser(ctx.from.id, ctx.from.username);
     if (status === "added" && env.CHAT_LOG === true) {
@@ -24,70 +88,6 @@ export default async (ctx, next) => {
         }
       );
     }
-  }
-
-  // CallbackQueries is not being managed here.
-  if (ctx.callbackQuery) return await next();
-  if (!ctx.message && !ctx.editedMessage) return;
-
-  let data = JSON.stringify(ctx.update, undefined, 2);
-
-  let msg_arr = [
-    `<pre><code class="language-json">${escapeHtml(data)}</code></pre>`,
-  ];
-
-  if (msg_arr[0].length > 4096) {
-    let limit = Math.ceil(msg_arr[0].length/4096);
-    msg_arr.shift();
-    for (let i = 0; i < limit; i++) {
-      msg_arr.push(
-        `<pre><code class="language-json">${escapeHtml(
-          data.substring((i - 1) * 4096, i * 4096)
-        )}</code></pre>`
-      );
-    }
-  }
-  // Send split messages.
-  for (let i = 0; i < msg_arr.length; i++) {
-    await ctx.reply(msg_arr[i], {
-      parse_mode: "HTML",
-      reply_to_message_id:
-        ctx.message !== undefined
-          ? ctx.message.message_id
-          : ctx.editedMessage.message_id,
-      disable_web_page_preview: true,
-    });
-  }
-
-  // Inline Keyboard buttons creating using keys.
-  const keyboard = [];
-  Object.entries(ctx.update).forEach((pair) => {
-    // => update_id, message || edited_message
-    if (typeof pair[1] == "object")
-      keyboard.push([
-        { text: `${pair[0]}`, callback_data: `print-key-${pair[0]}` },
-        { text: `Object 📂`, callback_data: `go-${pair[0]}-1` },
-      ]);
-    else
-      keyboard.push([
-        { text: `${pair[0]}`, callback_data: `print-key-${pair[0]}` },
-        { text: `${pair[1]}`, callback_data: `print-value-${pair[0]}` },
-      ]);
-  });
-
-  await ctx.reply(`update_id: <code>${ctx.update.update_id}</code>,\nupdate`, {
-    parse_mode: "HTML",
-    reply_to_message_id:
-      ctx.message !== undefined
-        ? ctx.message.message_id
-        : ctx.editedMessage.message_id,
-    disable_web_page_preview: true,
-    reply_markup: {
-      inline_keyboard: keyboard,
-    },
-  });
-
-  if (db.up) {
     await db.incrementJsonShowed(ctx.from.id);
     if (env.CHAT_LOG === true) {
       const json_showed = await db.getJsonShowedCount();

@@ -16,6 +16,7 @@ export type {
   SessionFlavor,
 } from "https://deno.land/x/grammy@v1.8.2/mod.ts";
 export type {
+  InlineKeyboardButton,
   Message,
   ReplyMessage,
 } from "https://esm.sh/@grammyjs/types@v2.7.0";

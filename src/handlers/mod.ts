@@ -6,6 +6,7 @@ import { start } from "./start.ts";
 import { print } from "./print.ts";
 import { navigation } from "./navigation.ts";
 import { stats } from "./stats.ts";
+import { help } from "./help.ts";
 
 export const handlers = new Composer<Context>();
 
@@ -14,4 +15,5 @@ handlers
   .use(start)
   .use(print)
   .use(navigation)
-  .use(stats);
+  .use(stats)
+  .use(help);

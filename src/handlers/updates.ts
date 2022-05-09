@@ -53,6 +53,8 @@ updates.use(async (ctx, next) => {
     allow_sending_without_reply: true,
     disable_web_page_preview: true,
   });
+  
+  ctx.session.json_showed++;
 
   await next();
 });

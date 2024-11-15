@@ -1,19 +1,25 @@
-import { bot } from "./src/bot.ts";
-import { serve, webhookCallback } from "./deps.ts";
+import { bot } from "./bot.ts";
+import { webhookCallback } from "./deps.ts";
 
-const handleUpdate = webhookCallback(bot, "std/http");
-await bot.init();
-
-serve(async (req) => {
-  if (req.method == "POST") {
-    try {
-      return await handleUpdate(req);
-    } catch (err) {
-      console.error(err);
-      return new Response();
-    }
-  }
-
-  // redirect any other requests to the bot
-  return Response.redirect(`https://telegram.me/${bot.botInfo.username}`);
-});
+if (Deno.env.get("DEBUG") != null) {
+    bot.start({
+        drop_pending_updates: true,
+        onStart: (info) => console.log(info.username, "started."),
+    });
+} else {
+    const SECRET_PATHNAME = "/" + bot.token;
+    const handleUpdate = webhookCallback(bot, "std/http");
+    await bot.init();
+    Deno.serve({
+        onError: (error) => {
+            console.error(error);
+            return new Response("Internal Server Error", { status: 500 });
+        },
+    }, async (req) => {
+        const { pathname } = new URL(req.url);
+        if (req.method == "POST" && pathname === SECRET_PATHNAME) {
+            return await handleUpdate(req);
+        }
+        return Response.redirect(`https://t.me/${bot.botInfo.username}`);
+    });
+}

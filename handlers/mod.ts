@@ -1,4 +1,4 @@
-import { Composer } from "../../deps.ts";
+import { Composer } from "../deps.ts";
 import { Context } from "../helpers/context.ts";
 
 import { updates } from "./updates.ts";
@@ -11,9 +11,9 @@ import { help } from "./help.ts";
 export const handlers = new Composer<Context>();
 
 handlers
-  .use(updates)
-  .use(start)
-  .use(print)
-  .use(navigation)
-  .use(stats)
-  .use(help);
+    .use(updates)
+    .use(start)
+    .use(print)
+    .use(navigation)
+    .use(stats)
+    .use(help);

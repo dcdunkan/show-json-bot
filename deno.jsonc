@@ -1,0 +1,12 @@
+{
+    "fmt": {
+        "useTabs": false,
+        "lineWidth": 80,
+        "indentWidth": 4,
+        "semiColons": true,
+        "singleQuote": false
+    },
+    "unstable": [
+        "kv"
+    ]
+}

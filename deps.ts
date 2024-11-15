@@ -1,27 +1,25 @@
-// bot
 export {
-  Bot,
-  Composer,
-  GrammyError,
-  HttpError,
-  InlineKeyboard,
-  InputFile,
-  session,
-  webhookCallback,
-} from "https://deno.land/x/grammy@v1.8.2/mod.ts";
-export { DetaAdapter } from "https://deno.land/x/grammy_storage_deta@v1.0.2/mod.ts";
+    Bot,
+    Composer,
+    Context as BaseContext,
+    GrammyError,
+    HttpError,
+    InlineKeyboard,
+    InputFile,
+    session,
+    type SessionFlavor,
+    webhookCallback,
+} from "https://deno.land/x/grammy@v1.31.3/mod.ts";
+export {
+    DenoKVAdapter,
+} from "https://raw.githubusercontent.com/grammyjs/storages/5eda80d5f0dc4232c1affdda6aada6cc0ca3160d/packages/denokv/src/mod.ts";
 
 export type {
-  Context as BaseContext,
-  SessionFlavor,
-} from "https://deno.land/x/grammy@v1.8.2/mod.ts";
-export type {
-  InlineKeyboardButton,
-  Message,
-  ReplyMessage,
-} from "https://esm.sh/@grammyjs/types@v2.7.0";
+    InlineKeyboardButton,
+} from "https://deno.land/x/grammy@v1.31.3/types.ts";
 
-// other
-export { serve } from "https://deno.land/std@0.137.0/http/mod.ts";
-export { config } from "https://deno.land/std@0.137.0/dotenv/mod.ts";
-export { cleanEnv, str } from "https://deno.land/x/envalid@v0.0.3/mod.ts";
+import type { Message } from "https://deno.land/x/grammy@v1.31.3/types.ts";
+
+type ReplyMessage = NonNullable<Message["reply_to_message"]>;
+
+export type { Message, ReplyMessage };
